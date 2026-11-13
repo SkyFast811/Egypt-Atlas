@@ -42,18 +42,30 @@ pnpm check
 ```
 
 
-## Deploy with Nitro
+## Deploy to Vercel
 
-This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
+The production build uses Nitro's Vercel preset and writes a Vercel Build Output
+API bundle. The included `vercel.json` pins the frozen pnpm install and build
+commands. Import the repository into Vercel and keep the output directory
+setting empty so Vercel can detect Nitro's generated output.
 
-```bash
-npm run build
-node dist/server/index.mjs
-```
+Add these environment variables in the Vercel project's **Settings →
+Environment Variables** for Production. If Preview deployments need database
+access or authentication, configure Preview values too; use a separate
+non-production database and a URL appropriate to the preview deployment.
 
-The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
+- `DATABASE_URL`: the PostgreSQL connection URL. Use your provider's pooled
+  connection URL for serverless deployments.
+- `BETTER_AUTH_SECRET`: a private random secret; generate one with
+  `pnpm dlx @better-auth/cli secret`.
+- `BETTER_AUTH_URL`: the deployed app's canonical URL, such as
+  `https://your-project.vercel.app`. Add the production domain after assigning
+  it.
 
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
+Apply the database migrations to the production database with `pnpm db:migrate`
+before using authentication or saved trips. Vercel deployments do not read
+`.env.local`; never commit local environment files or put secrets in `VITE_`
+variables.
 
 
 ## Setting up Better Auth

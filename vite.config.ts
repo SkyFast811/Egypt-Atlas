@@ -62,7 +62,10 @@ const config = defineConfig({
 	plugins: [
 		routeScaffoldPlugin(),
 		devtools(),
-		nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+		nitro({
+			preset: "vercel",
+			rollupConfig: { external: [/^@sentry\//] },
+		}),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),
