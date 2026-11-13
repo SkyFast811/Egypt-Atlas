@@ -1,7 +1,4 @@
-import { config } from "dotenv";
 import { Pool } from "pg";
-
-config({ path: [".env.local", ".env"] });
 
 const DEFAULT_LIBRETRANSLATE_URL = "https://translate.argosopentech.com";
 const TRANSLATION_INTERVAL_MS = 1_000;

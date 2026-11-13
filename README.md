@@ -63,14 +63,15 @@ non-production database and a URL appropriate to the preview deployment.
   it.
 
 Apply the database migrations to the production database with `pnpm db:migrate`
-before using authentication or saved trips. Vercel deployments do not read
-`.env.local`; never commit local environment files or put secrets in `VITE_`
-variables.
+before using authentication or saved trips. The project does not load local
+`.env` files; provide required values through the process environment when
+running commands locally, or through Vercel's Environment Variables for
+deployments. Never put secrets in `VITE_` variables.
 
 
 ## Setting up Better Auth
 
-1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
+1. Generate a private `BETTER_AUTH_SECRET` value:
 
    ```bash
    pnpm dlx @better-auth/cli secret

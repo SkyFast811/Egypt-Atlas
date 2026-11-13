@@ -1,4 +1,3 @@
-import { config } from "dotenv";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
@@ -7,8 +6,6 @@ import {
 	type PlaceInformation,
 } from "../src/lib/place-information.ts";
 import type { PlaceMediaImage } from "../src/lib/place-media.ts";
-
-config({ path: [".env.local", ".env"] });
 
 const IMAGE_LIMIT = 2;
 const CONCURRENCY = 2;

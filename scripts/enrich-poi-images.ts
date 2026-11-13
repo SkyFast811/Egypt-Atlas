@@ -1,4 +1,3 @@
-import { config } from "dotenv";
 import { Pool } from "pg";
 import { findPlaceImages } from "../src/lib/place-media.ts";
 
@@ -13,8 +12,6 @@ type PoiRow = {
 		credit?: string;
 	}[];
 };
-
-config({ path: [".env.local", ".env"] });
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {

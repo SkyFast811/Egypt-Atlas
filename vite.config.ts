@@ -5,11 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { config as loadEnv } from "dotenv";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-
-loadEnv({ path: [".env.local", ".env"] });
 
 const routeDirectory = path.resolve(process.cwd(), "src/routes");
 
@@ -58,6 +55,7 @@ function routeScaffoldPlugin() {
 }
 
 const config = defineConfig({
+	envDir: false,
 	resolve: { tsconfigPaths: true },
 	plugins: [
 		routeScaffoldPlugin(),

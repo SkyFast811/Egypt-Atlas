@@ -1,4 +1,3 @@
-import { config } from "dotenv";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
@@ -338,7 +337,6 @@ async function importBounds(
 }
 
 async function main(): Promise<void> {
-	config({ path: [".env.local", ".env"] });
 	const databaseUrl = process.env.DATABASE_URL;
 	if (!databaseUrl) {
 		throw new Error("DATABASE_URL must be set before importing OSM places");
