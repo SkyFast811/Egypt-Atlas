@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789208041897,
+      "tag": "0000_funny_stature",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789217493839,
+      "tag": "0001_mute_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790443813518,
+      "tag": "0002_harsh_umar",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792788896485,
+      "tag": "0003_auth_and_trips",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793735738696,
+      "tag": "0004_mean_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794010236834,
+      "tag": "0005_enrich_places",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794010768288,
+      "tag": "0006_enrich_egypt_pois",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794062401892,
+      "tag": "0007_hard_warbird",
+      "breakpoints": true
+    }
+  ]
+}

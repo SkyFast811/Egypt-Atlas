@@ -1,0 +1,140 @@
+{
+  "id": "07088b7b-6001-4076-95e3-c8fd9d530c43",
+  "prevId": "d3854aa6-de9e-471c-a441-e653a935f847",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.airports": {
+      "name": "airports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lng": {
+          "name": "lng",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lat": {
+          "name": "lat",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "airports_lng_unique": {
+          "name": "airports_lng_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "lng"
+          ]
+        },
+        "airports_lat_unique": {
+          "name": "airports_lat_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "lat"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.egypt_pois": {
+      "name": "egypt_pois",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lng": {
+          "name": "lng",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lat": {
+          "name": "lat",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "classification": {
+          "name": "classification",
+          "type": "poi_type_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "egypt_pois_lng_unique": {
+          "name": "egypt_pois_lng_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "lng"
+          ]
+        },
+        "egypt_pois_lat_unique": {
+          "name": "egypt_pois_lat_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "lat"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.poi_type_enum": {
+      "name": "poi_type_enum",
+      "schema": "public",
+      "values": [
+        "natural",
+        "modern human made",
+        "historic human made"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

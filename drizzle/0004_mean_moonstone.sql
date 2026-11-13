@@ -1,0 +1,1 @@
+ALTER TABLE "egypt_pois" ADD COLUMN "alternate_names" jsonb DEFAULT '[]'::jsonb NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE "egypt_pois" ADD COLUMN "arabic_name" text;
