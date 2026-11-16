@@ -61,12 +61,21 @@ non-production database and a URL appropriate to the preview deployment.
 - `BETTER_AUTH_URL`: the deployed app's canonical URL, such as
   `https://your-project.vercel.app`. Add the production domain after assigning
   it.
+- `APP_URL`: the canonical app URL used to build independent email-verification
+  links. Use the same deployed URL as `BETTER_AUTH_URL`.
+- `SMTP_HOST`, `SMTP_PORT`, and `SMTP_FROM`: the mail server hostname, port
+  (typically `587` or `465`), and sender address used to deliver verification
+  links.
+- `SMTP_USER` and `SMTP_PASSWORD`: SMTP credentials, when required by the mail
+  server. Set both or neither.
 
 Apply the database migrations to the production database with `pnpm db:migrate`
 before using authentication or saved trips. The project does not load local
 `.env` files; provide required values through the process environment when
-running commands locally, or through Vercel's Environment Variables for
-deployments. Never put secrets in `VITE_` variables.
+running commands locally, including the SMTP settings when testing email
+verification, or through Vercel's Environment Variables for deployments.
+Verification links expire after 24 hours. Never put secrets in `VITE_`
+variables.
 
 
 ## Setting up Better Auth

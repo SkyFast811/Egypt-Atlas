@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { sql } from "drizzle-orm";
 import { db } from "#/db";
 import {
 	authAccounts,
@@ -26,6 +28,31 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+		autoSignIn: false,
+	},
+	hooks: {
+		before: createAuthMiddleware(async (context) => {
+			if (context.path !== "/sign-in/email") {
+				return;
+			}
+
+			const email = context.body?.email;
+			if (typeof email !== "string") {
+				return;
+			}
+
+			const [user] = await db
+				.select({ emailVerified: authUsers.emailVerified })
+				.from(authUsers)
+				.where(sql`lower(${authUsers.email}) = ${email.trim().toLowerCase()}`)
+				.limit(1);
+
+			if (user && !user.emailVerified) {
+				throw new APIError("UNAUTHORIZED", {
+					message: "Invalid email or password.",
+				});
+			}
+		}),
 	},
 	plugins: [tanstackStartCookies()],
 });

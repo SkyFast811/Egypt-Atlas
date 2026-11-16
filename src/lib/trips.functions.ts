@@ -3,7 +3,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "#/db";
-import { trips } from "#/db/schema";
+import { authUsers, trips } from "#/db/schema";
 import { auth } from "./auth";
 
 const TripStopSchema = z.object({
@@ -30,6 +30,16 @@ async function requireUserId() {
 	if (!session) {
 		throw new Error("Sign in to access your trips.");
 	}
+
+	const [user] = await db
+		.select({ emailVerified: authUsers.emailVerified })
+		.from(authUsers)
+		.where(eq(authUsers.id, session.user.id))
+		.limit(1);
+	if (!user?.emailVerified) {
+		throw new Error("Verify your email before accessing your trips.");
+	}
+
 	return session.user.id;
 }
 

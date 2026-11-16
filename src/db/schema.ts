@@ -73,6 +73,20 @@ export const authVerifications = pgTable(
 	(table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const emailVerificationTokens = pgTable(
+	"email_verification_tokens",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => authUsers.id, { onDelete: "cascade" }),
+		tokenHash: text("token_hash").notNull().unique(),
+		expiresAt: timestamp("expires_at").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => [index("email_verification_tokens_user_id_idx").on(table.userId)],
+);
+
 export const airPorts = pgTable("airports", {
 	id: serial().primaryKey(),
 	name: text().notNull(),
