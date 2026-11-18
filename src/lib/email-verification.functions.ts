@@ -15,24 +15,42 @@ const VERIFY_TOKEN_SCHEMA = z.object({
 });
 
 function getVerificationConfiguration() {
-	const appUrlValue = process.env.APP_URL;
 	const smtpHost = process.env.SMTP_HOST;
 	const smtpPortValue = process.env.SMTP_PORT;
 	const smtpUser = process.env.SMTP_USER;
 	const smtpPassword = process.env.SMTP_PASSWORD;
 	const smtpFrom = process.env.SMTP_FROM;
+	const isDevelopment = process.env.NODE_ENV === "development";
+	const appUrlValue =
+		process.env.APP_URL ??
+		process.env.BETTER_AUTH_URL ??
+		(isDevelopment ? "http://localhost:3000" : undefined);
 
-	if (!appUrlValue || !smtpHost || !smtpPortValue || !smtpFrom) {
+	if (!appUrlValue) {
+		throw new Error("APP_URL must be configured to send verification emails.");
+	}
+
+	const hasSmtpConfiguration = Boolean(smtpHost && smtpPortValue && smtpFrom);
+	const hasPartialSmtpConfiguration = Boolean(
+		smtpHost || smtpPortValue || smtpFrom || smtpUser || smtpPassword,
+	);
+	if (
+		!hasSmtpConfiguration &&
+		(!isDevelopment || hasPartialSmtpConfiguration)
+	) {
 		throw new Error(
 			"APP_URL, SMTP_HOST, SMTP_PORT, and SMTP_FROM must be configured to send verification emails.",
 		);
 	}
-	if (Boolean(smtpUser) !== Boolean(smtpPassword)) {
+	if (hasSmtpConfiguration && Boolean(smtpUser) !== Boolean(smtpPassword)) {
 		throw new Error("SMTP_USER and SMTP_PASSWORD must be set together.");
 	}
 
-	const smtpPort = Number(smtpPortValue);
-	if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+	const smtpPort = smtpPortValue ? Number(smtpPortValue) : undefined;
+	if (
+		smtpPort !== undefined &&
+		(!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535)
+	) {
 		throw new Error("SMTP_PORT must be a valid TCP port.");
 	}
 
@@ -52,18 +70,21 @@ function getVerificationConfiguration() {
 	return {
 		appUrl,
 		smtpFrom,
-		transporter: createTransport({
-			host: smtpHost,
-			port: smtpPort,
-			secure: smtpPort === 465,
-			auth:
-				smtpUser && smtpPassword
-					? { user: smtpUser, pass: smtpPassword }
-					: undefined,
-			connectionTimeout: 10_000,
-			greetingTimeout: 10_000,
-			socketTimeout: 20_000,
-		}),
+		transporter:
+			hasSmtpConfiguration && smtpPort
+				? createTransport({
+						host: smtpHost,
+						port: smtpPort,
+						secure: smtpPort === 465,
+						auth:
+							smtpUser && smtpPassword
+								? { user: smtpUser, pass: smtpPassword }
+								: undefined,
+						connectionTimeout: 10_000,
+						greetingTimeout: 10_000,
+						socketTimeout: 20_000,
+					})
+				: undefined,
 	};
 }
 
@@ -103,7 +124,7 @@ export const requestEmailVerification = createServerFn({ method: "POST" })
 				),
 			)
 			.limit(1);
-		if (recentToken) {
+		if (recentToken && transporter) {
 			return { success: true };
 		}
 
@@ -126,6 +147,11 @@ export const requestEmailVerification = createServerFn({ method: "POST" })
 		const verificationUrl = new URL("/verify-email", appUrl);
 		verificationUrl.searchParams.set("token", token);
 		const link = verificationUrl.toString();
+		if (!transporter) {
+			console.info(`Local email verification link: ${link}`);
+			return { success: true, verificationUrl: link };
+		}
+
 		await transporter.sendMail({
 			from: smtpFrom,
 			to: user.email,

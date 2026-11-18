@@ -25,19 +25,24 @@ function AuthPage() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [notice, setNotice] = useState<string | null>(null);
+	const [verificationLink, setVerificationLink] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setError(null);
 		setNotice(null);
+		setVerificationLink(null);
 		setIsSubmitting(true);
 		try {
 			if (mode === "resend") {
-				await requestEmailVerification({ data: { email } });
+				const result = await requestEmailVerification({ data: { email } });
 				setNotice(
-					"If the address has an unverified account, a verification link will be sent.",
+					result.verificationUrl
+						? "Open the local verification link below."
+						: "If the address has an unverified account, a verification link will be sent.",
 				);
+				setVerificationLink(result.verificationUrl ?? null);
 				return;
 			}
 
@@ -55,10 +60,15 @@ function AuthPage() {
 			}
 
 			if (mode === "signUp") {
-				await requestEmailVerification({ data: { email } });
+				const verification = await requestEmailVerification({
+					data: { email },
+				});
 				setNotice(
-					"Account created. Check your email for a verification link before signing in.",
+					verification.verificationUrl
+						? "Account created. Open the local verification link below."
+						: "Account created. Check your email for a verification link before signing in.",
 				);
+				setVerificationLink(verification.verificationUrl ?? null);
 				return;
 			}
 
@@ -174,6 +184,16 @@ function AuthPage() {
 					)}
 					{notice && (
 						<output className="text-sm text-emerald-500">{notice}</output>
+					)}
+					{verificationLink && (
+						<p className="text-sm">
+							<a
+								className="text-foreground underline underline-offset-4"
+								href={verificationLink}
+							>
+								Verify your email
+							</a>
+						</p>
 					)}
 					<Button className="w-full" type="submit" disabled={isSubmitting}>
 						{isSubmitting

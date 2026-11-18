@@ -38,10 +38,13 @@ import { turnIcon, turnStyle } from "#/utils";
 import { getEgyptPois, getPlacesPage } from "./-index.functions";
 
 export const Route = createFileRoute("/")({
-	loader: async () => ({
-		...(await getEgyptPois()),
-		places: await getPlacesPage({ data: { afterId: 0 } }),
-	}),
+	loader: async () => {
+		const [pois, places] = await Promise.all([
+			getEgyptPois(),
+			getPlacesPage({ data: { afterId: 0 } }),
+		]);
+		return { ...pois, places };
+	},
 	component: RouteComponent,
 });
 

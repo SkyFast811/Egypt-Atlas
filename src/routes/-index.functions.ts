@@ -8,115 +8,36 @@ import { PLACES_PAGE_SIZE } from "#/lib/place-types";
 
 export const getEgyptPois = createServerFn({ method: "GET" }).handler(
 	async () => {
-		const northCenter = await db
+		const pois = await db
 			.select()
 			.from(egyptPois)
 			.where(
 				and(
-					gte(egyptPois.lat, 28.4),
+					gte(egyptPois.lat, 22),
 					lte(egyptPois.lat, 31.6),
-					gt(egyptPois.lng, 28.77),
-					lte(egyptPois.lng, 32.83),
-				),
-			);
-		const northEast = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gte(egyptPois.lat, 28.4),
-					lte(egyptPois.lat, 31.6),
-					gt(egyptPois.lng, 32.83),
+					gte(egyptPois.lng, 24.7),
 					lte(egyptPois.lng, 36.9),
 				),
 			);
-		const centerWest = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gt(egyptPois.lat, 25.2),
-					lte(egyptPois.lat, 28.4),
-					gte(egyptPois.lng, 24.7),
-					lte(egyptPois.lng, 28.77),
-				),
-			);
-		const centerCenter = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gt(egyptPois.lat, 25.2),
-					lte(egyptPois.lat, 28.4),
-					gt(egyptPois.lng, 28.77),
-					lte(egyptPois.lng, 32.83),
-				),
-			);
-		const centerEast = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gt(egyptPois.lat, 25.2),
-					lte(egyptPois.lat, 28.4),
-					gt(egyptPois.lng, 32.83),
-					lte(egyptPois.lng, 36.9),
-				),
-			);
-		const southWest = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gte(egyptPois.lat, 22.0),
-					lte(egyptPois.lat, 25.2),
-					gte(egyptPois.lng, 24.7),
-					lte(egyptPois.lng, 28.77),
-				),
-			);
-		const southCenter = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gte(egyptPois.lat, 22.0),
-					lte(egyptPois.lat, 25.2),
-					gt(egyptPois.lng, 28.77),
-					lte(egyptPois.lng, 32.83),
-				),
-			);
-		const southEast = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gte(egyptPois.lat, 22.0),
-					lte(egyptPois.lat, 25.2),
-					gt(egyptPois.lng, 32.83),
-					lte(egyptPois.lng, 36.9),
-				),
-			);
-		const northWest = await db
-			.select()
-			.from(egyptPois)
-			.where(
-				and(
-					gte(egyptPois.lat, 28.4),
-					lte(egyptPois.lat, 31.6),
-					gte(egyptPois.lng, 24.7),
-					lte(egyptPois.lng, 28.77),
-				),
-			);
+		const north = (poi: (typeof pois)[number]) => poi.lat >= 28.4;
+		const center = (poi: (typeof pois)[number]) =>
+			poi.lat > 25.2 && poi.lat <= 28.4;
+		const south = (poi: (typeof pois)[number]) => poi.lat <= 25.2;
+		const west = (poi: (typeof pois)[number]) => poi.lng <= 28.77;
+		const centerLng = (poi: (typeof pois)[number]) =>
+			poi.lng > 28.77 && poi.lng <= 32.83;
+		const east = (poi: (typeof pois)[number]) => poi.lng > 32.83;
+
 		return {
-			northWest,
-			northCenter,
-			northEast,
-			centerWest,
-			centerCenter,
-			centerEast,
-			southWest,
-			southCenter,
-			southEast,
+			northWest: pois.filter((poi) => north(poi) && west(poi)),
+			northCenter: pois.filter((poi) => north(poi) && centerLng(poi)),
+			northEast: pois.filter((poi) => north(poi) && east(poi)),
+			centerWest: pois.filter((poi) => center(poi) && west(poi)),
+			centerCenter: pois.filter((poi) => center(poi) && centerLng(poi)),
+			centerEast: pois.filter((poi) => center(poi) && east(poi)),
+			southWest: pois.filter((poi) => south(poi) && west(poi)),
+			southCenter: pois.filter((poi) => south(poi) && centerLng(poi)),
+			southEast: pois.filter((poi) => south(poi) && east(poi)),
 		};
 	},
 );

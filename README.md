@@ -55,12 +55,16 @@ access or authentication, configure Preview values too; use a separate
 non-production database and a URL appropriate to the preview deployment.
 
 - `DATABASE_URL`: the PostgreSQL connection URL. Use your provider's pooled
-  connection URL for serverless deployments.
+  connection URL for serverless deployments. `POSTGRES_URL` is also accepted
+  when that is the variable your Vercel database integration provides.
 - `BETTER_AUTH_SECRET`: a private random secret; generate one with
   `pnpm dlx @better-auth/cli secret`.
 - `BETTER_AUTH_URL`: the deployed app's canonical URL, such as
-  `https://your-project.vercel.app`. Add the production domain after assigning
-  it.
+  `https://egypt-atlas-phi.vercel.app` or your custom production domain. Set
+  this for production to override the project's built-in canonical URL.
+  Production otherwise uses `https://egypt-atlas-phi.vercel.app`; previews use
+  their `VERCEL_URL`. The Vercel deployment, branch, and project production
+  URLs are trusted as auth origins.
 - `APP_URL`: the canonical app URL used to build independent email-verification
   links. Use the same deployed URL as `BETTER_AUTH_URL`.
 - `SMTP_HOST`, `SMTP_PORT`, and `SMTP_FROM`: the mail server hostname, port
@@ -70,10 +74,15 @@ non-production database and a URL appropriate to the preview deployment.
   server. Set both or neither.
 
 Apply the database migrations to the production database with `pnpm db:migrate`
-before using authentication or saved trips. The project does not load local
-`.env` files; provide required values through the process environment when
-running commands locally, including the SMTP settings when testing email
-verification, or through Vercel's Environment Variables for deployments.
+before using authentication or saved trips. For local development, create an ignored `.env.local` file in the project root
+with `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL`; `pnpm dev`
+loads it automatically. Local development can verify accounts without SMTP;
+the verification link is shown on the sign-up page and in the dev server
+terminal. Configure SMTP to send actual emails. Other commands, such as
+`pnpm db:migrate`, need their environment variables set in the shell or pulled
+with the Vercel CLI. Vercel deployments use the project's Environment
+Variables instead of `.env.local` and require SMTP configuration for
+verification emails.
 Verification links expire after 24 hours. Never put secrets in `VITE_`
 variables.
 
