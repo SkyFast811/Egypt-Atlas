@@ -65,26 +65,15 @@ non-production database and a URL appropriate to the preview deployment.
   Production otherwise uses `https://egypt-atlas-phi.vercel.app`; previews use
   their `VERCEL_URL`. The Vercel deployment, branch, and project production
   URLs are trusted as auth origins.
-- `APP_URL`: the canonical app URL used to build independent email-verification
-  links. Use the same deployed URL as `BETTER_AUTH_URL`.
-- `SMTP_HOST`, `SMTP_PORT`, and `SMTP_FROM`: the mail server hostname, port
-  (typically `587` or `465`), and sender address used to deliver verification
-  links.
-- `SMTP_USER` and `SMTP_PASSWORD`: SMTP credentials, when required by the mail
-  server. Set both or neither.
 
 Apply the database migrations to the production database with `pnpm db:migrate`
 before using authentication or saved trips. For local development, create an ignored `.env.local` file in the project root
 with `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL`; `pnpm dev`
-loads it automatically. Local development can verify accounts without SMTP;
-the verification link is shown on the sign-up page and in the dev server
-terminal. Configure SMTP to send actual emails. Other commands, such as
+loads it automatically. Email verification is currently disabled; users can
+sign in immediately after creating an account. Other commands, such as
 `pnpm db:migrate`, need their environment variables set in the shell or pulled
 with the Vercel CLI. Vercel deployments use the project's Environment
-Variables instead of `.env.local` and require SMTP configuration for
-verification emails.
-Verification links expire after 24 hours. Never put secrets in `VITE_`
-variables.
+Variables instead of `.env.local`. Never put secrets in `VITE_` variables.
 
 
 ## Setting up Better Auth

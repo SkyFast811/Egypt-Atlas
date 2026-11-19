@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HelloRouteImport } from './routes/hello'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as PlacesIndexRouteImport } from './routes/places.index'
 import { Route as PlacesPlaceIdRouteImport } from './routes/places.$placeId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -38,11 +37,6 @@ const HelloRoute = HelloRouteImport.update({
   path: '/hello',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PlacesIndexRoute = PlacesIndexRouteImport.update({
   id: '/places/',
   path: '/places/',
@@ -64,7 +58,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/hello': typeof HelloRoute
-  '/verify-email': typeof VerifyEmailRoute
   '/places/$placeId': typeof PlacesPlaceIdRoute
   '/places/': typeof PlacesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -74,7 +67,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/hello': typeof HelloRoute
-  '/verify-email': typeof VerifyEmailRoute
   '/places/$placeId': typeof PlacesPlaceIdRoute
   '/places': typeof PlacesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -85,7 +77,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/hello': typeof HelloRoute
-  '/verify-email': typeof VerifyEmailRoute
   '/places/$placeId': typeof PlacesPlaceIdRoute
   '/places/': typeof PlacesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -97,7 +88,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/hello'
-    | '/verify-email'
     | '/places/$placeId'
     | '/places/'
     | '/api/auth/$'
@@ -107,7 +97,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/hello'
-    | '/verify-email'
     | '/places/$placeId'
     | '/places'
     | '/api/auth/$'
@@ -117,7 +106,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/hello'
-    | '/verify-email'
     | '/places/$placeId'
     | '/places/'
     | '/api/auth/$'
@@ -128,7 +116,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   HelloRoute: typeof HelloRoute
-  VerifyEmailRoute: typeof VerifyEmailRoute
   PlacesPlaceIdRoute: typeof PlacesPlaceIdRoute
   PlacesIndexRoute: typeof PlacesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -164,13 +151,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelloRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/places/': {
       id: '/places/'
       path: '/places'
@@ -200,7 +180,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   HelloRoute: HelloRoute,
-  VerifyEmailRoute: VerifyEmailRoute,
   PlacesPlaceIdRoute: PlacesPlaceIdRoute,
   PlacesIndexRoute: PlacesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
