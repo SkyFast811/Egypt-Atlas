@@ -14,6 +14,7 @@ import { GenDataRoute } from "#/components/custom/GenDataRoute";
 import LocationTrackingLayer from "#/components/custom/LocationTrackingLayer";
 import MapGenCluster from "#/components/custom/MapGenCluster";
 import PlaceExplorerLayer from "#/components/custom/PlaceExplorerLayer";
+import { PlaceMarkdown } from "#/components/custom/PlaceMarkdown";
 import ReturnButtonLayer from "#/components/custom/ReturnButtonLayer";
 import RouteStartLayer from "#/components/custom/RouteStartLayer";
 import TripPlanner from "#/components/custom/TripPlanner";
@@ -25,7 +26,9 @@ import {
 	type MapRef,
 	Map as MapView,
 	MarkerContent,
+	MarkerPopup,
 	MarkerTooltip,
+	useMap,
 } from "#/components/ui/map";
 import { authClient } from "#/lib/auth-client";
 import type { PlaceCategory } from "#/lib/place-categories";
@@ -432,7 +435,11 @@ function RouteComponent() {
 												: "No stored photos"}
 										</span>
 									</span>
-									<MapPin className="text-muted-foreground ml-auto size-4 shrink-0" />
+									<div
+										className={`ml-auto flex size-7 shrink-0 items-center justify-center rounded-full border border-white shadow-md ${turnStyle(poi.category)}`}
+									>
+										{turnIcon(poi.category)}
+									</div>
 								</button>
 							))
 						) : (
@@ -451,18 +458,60 @@ function SearchResultHighlight({
 	place,
 	prefersReducedMotion,
 }: {
-	place: { id: number; name: string; lng: number; lat: number };
+	place: {
+		id: number;
+		name: string;
+		lng: number;
+		lat: number;
+		arabicName: string | null;
+		category: "natural" | "modern human made" | "historic human made";
+		alternateNames: string[];
+		description: string;
+		images: Array<{
+			url: string;
+			alt: string;
+			source?: string;
+			credit?: string;
+		}>;
+	};
 	prefersReducedMotion: boolean;
 }) {
+	const { map, isLoaded } = useMap();
+	const [zoom, setZoom] = useState(map?.getZoom() ?? 0);
+
+	useEffect(() => {
+		if (!map || !isLoaded) return;
+		const updateZoom = () => setZoom(map.getZoom());
+		updateZoom();
+		map.on("zoomend", updateZoom);
+		return () => {
+			map.off("zoomend", updateZoom);
+		};
+	}, [map, isLoaded]);
+
+	if (zoom < 7.5) return null;
+
+	const ringClass =
+		place.category === "natural"
+			? "border-green-500"
+			: place.category === "historic human made"
+				? "border-red-500"
+				: "border-yellow-500";
+
 	return (
-		<MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
-			<MarkerContent className="z-10">
+		<MapMarker
+			key={place.id}
+			longitude={place.lng}
+			latitude={place.lat}
+			zIndex={1000}
+		>
+			<MarkerContent className="z-[1000]">
 				<div className="relative flex flex-col items-center">
 					{!prefersReducedMotion && (
 						<>
 							<motion.span
 								aria-hidden="true"
-								className="pointer-events-none absolute top-1 size-12 rounded-full border-2 border-amber-300"
+								className={`pointer-events-none absolute top-1 size-12 rounded-full border-2 ${ringClass}`}
 								animate={{ scale: [0.55, 1.8], opacity: [0.75, 0] }}
 								transition={{
 									duration: 1.6,
@@ -472,7 +521,7 @@ function SearchResultHighlight({
 							/>
 							<motion.span
 								aria-hidden="true"
-								className="pointer-events-none absolute top-1 size-12 rounded-full border-2 border-amber-300"
+								className={`pointer-events-none absolute top-1 size-12 rounded-full border-2 ${ringClass}`}
 								animate={{ scale: [0.55, 1.8], opacity: [0.75, 0] }}
 								transition={{
 									duration: 1.6,
@@ -486,7 +535,7 @@ function SearchResultHighlight({
 					<motion.div
 						role="img"
 						aria-label={`Search result: ${place.name}`}
-						className="relative z-10 rounded-full border-2 border-white bg-amber-500 p-2.5 text-white shadow-[0_0_24px_rgba(245,158,11,0.8)]"
+						className={`relative z-10 rounded-full border-2 border-white p-2.5 text-white shadow-lg ${turnStyle(place.category)}`}
 						initial={prefersReducedMotion ? false : { scale: 0, y: 12 }}
 						animate={
 							prefersReducedMotion
@@ -500,10 +549,12 @@ function SearchResultHighlight({
 							duration: 0.65,
 						}}
 					>
-						<MapPin className="size-7 fill-amber-500 text-white" />
+						<div className="flex size-7 items-center justify-center [&>svg]:size-7 [&>svg]:fill-current">
+							{turnIcon(place.category)}
+						</div>
 					</motion.div>
 					<motion.span
-						className="relative z-10 mt-1 max-w-48 truncate rounded-full border border-amber-300/70 bg-background/95 px-2.5 py-1 text-xs font-semibold shadow-lg"
+						className={`relative z-10 mt-1 max-w-48 truncate rounded-full border bg-background/95 px-2.5 py-1 text-xs font-semibold shadow-lg ${ringClass}`}
 						initial={prefersReducedMotion ? false : { opacity: 0, y: 6 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: prefersReducedMotion ? 0 : 0.15 }}
@@ -511,6 +562,53 @@ function SearchResultHighlight({
 						{place.name}
 					</motion.span>
 					<MarkerTooltip>{place.name}</MarkerTooltip>
+					<MarkerPopup
+						closeButton
+						maxWidth="280px"
+						className="w-70 max-w-[calc(100vw-2rem)] bg-popover p-3 text-left text-popover-foreground"
+					>
+						<div className="space-y-2 text-sm leading-relaxed">
+							<div>
+								<h3 className="font-semibold leading-tight">
+									<ArabicPlaceName
+										name={place.name}
+										arabicName={place.arabicName}
+									/>
+								</h3>
+								<p className="text-muted-foreground capitalize">
+									{place.category}
+								</p>
+							</div>
+							{place.images[0] && (
+								<figure>
+									<img
+										className="max-h-36 w-full rounded-sm object-cover"
+										src={place.images[0].url}
+										alt={place.images[0].alt || place.name}
+										loading="lazy"
+									/>
+									{place.images[0].credit && (
+										<figcaption className="mt-1 truncate text-[10px] text-muted-foreground">
+											{place.images[0].credit}
+										</figcaption>
+									)}
+								</figure>
+							)}
+							{place.description && (
+								<PlaceMarkdown className="line-clamp-3">
+									{place.description}
+								</PlaceMarkdown>
+							)}
+							<Link
+								to="/places/$placeId"
+								params={{ placeId: String(place.id) }}
+								className="inline-flex text-sm font-medium text-amber-400 hover:text-amber-300"
+								onClick={(event) => event.stopPropagation()}
+							>
+								View place details
+							</Link>
+						</div>
+					</MarkerPopup>
 				</div>
 			</MarkerContent>
 		</MapMarker>

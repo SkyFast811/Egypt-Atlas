@@ -446,6 +446,8 @@ type MapMarkerProps = {
 	latitude: number;
 	/** Marker subcomponents (MarkerContent, MarkerPopup, MarkerTooltip, MarkerLabel) */
 	children: ReactNode;
+	/** CSS z-index for this marker's map element. */
+	zIndex?: number;
 	/** Callback when marker is clicked */
 	onClick?: (e: MouseEvent) => void;
 	/** Callback when marker is double-clicked */
@@ -474,6 +476,7 @@ function MapMarker({
 	onDrag,
 	onDragEnd,
 	draggable = false,
+	zIndex,
 	...markerOptions
 }: MapMarkerProps) {
 	const { map } = useMap();
@@ -498,9 +501,11 @@ function MapMarker({
 	};
 
 	const marker = useMemo(() => {
+		const markerElement = document.createElement("div");
+		if (zIndex !== undefined) markerElement.style.zIndex = String(zIndex);
 		const markerInstance = new MapLibreGL.Marker({
 			...markerOptions,
-			element: document.createElement("div"),
+			element: markerElement,
 			draggable,
 		}).setLngLat([longitude, latitude]);
 
@@ -560,6 +565,9 @@ function MapMarker({
 	const { offset, rotation, rotationAlignment, pitchAlignment } = markerOptions;
 
 	useEffect(() => {
+		if (zIndex !== undefined) {
+			marker.getElement().style.zIndex = String(zIndex);
+		}
 		const current = marker.getLngLat();
 		if (current.lng !== longitude || current.lat !== latitude) {
 			marker.setLngLat([longitude, latitude]);
@@ -596,6 +604,7 @@ function MapMarker({
 		rotation,
 		rotationAlignment,
 		pitchAlignment,
+		zIndex,
 	]);
 
 	return (
@@ -699,7 +708,7 @@ function MarkerPopup({
 	return createPortal(
 		<div
 			className={cn(
-				"bg-popover text-popover-foreground relative max-w-62 rounded-md border p-3 shadow-md",
+				"bg-popover text-popover-foreground relative max-h-[min(70vh,32rem)] max-w-62 overflow-y-auto overscroll-contain rounded-md border p-3 shadow-md",
 				"animate-in fade-in-0 zoom-in-95 duration-200 ease-out",
 				className,
 			)}
